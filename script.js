@@ -5,15 +5,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const noteList = document.getElementById('noteList');
     const searchInput = document.getElementById('searchInput');
 
-    // ローカルストレージからメモを読み込む
-    let notes = JSON.parse(localStorage.getItem('notes')) || [];
+    // ★★★ GASウェブアプリのURLをここに貼り付けます ★★★
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwcJ3U2bG93GsCUix1XBYtzdHyCQMv3FGAuSUf9D_zEGbyXVPoBQrzMTEf2oaMHzAL-/exec';
 
-    // ページ読み込み時にメモ一覧をレンダリング
-    renderNotes(notes);
+    // ページ読み込み時にスプレッドシートからメモを読み込む
+    loadNotesFromSpreadsheet();
 
     // メモ追加フォームの送信イベントを処理
     noteForm.addEventListener('submit', (e) => {
-        e.preventDefault(); // フォームのデフォルト送信を防止
+        e.preventDefault();
 
         const title = noteTitleInput.value.trim();
         const content = noteContentInput.value.trim();
@@ -23,10 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 title: title,
                 content: content
             };
-
-            notes.push(newNote);
-            saveNotes(); // メモを保存
-            renderNotes(notes); // メモ一覧を更新
+            
+            // スプレッドシートに保存
+            saveToSpreadsheet(newNote);
 
             // フォームをリセット
             noteTitleInput.value = '';
@@ -37,78 +36,56 @@ document.addEventListener('DOMContentLoaded', () => {
     // 検索ボックスの入力イベントを処理
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
-        const filteredNotes = notes.filter(note => 
+        // ★★★ 検索はローカルの配列に対して行います ★★★
+        const filteredNotes = localNotes.filter(note => 
             note.title.toLowerCase().includes(searchTerm)
         );
-        renderNotes(filteredNotes); // フィルタリングされたメモをレンダリング
+        renderNotes(filteredNotes);
     });
-
-    // メモの表示・非表示を切り替えるイベントリスナー
-    // ★★★ この部分を修正します ★★★
-    noteList.addEventListener('click', (e) => {
-        const header = e.target.closest('.note-header');
-        if (header) {
-            const contentDiv = header.nextElementSibling;
-            const isExpanded = header.getAttribute('aria-expanded') === 'true';
-
-            // 他の開いているメモを閉じる
-            noteList.querySelectorAll('.note-header[aria-expanded="true"]').forEach(otherHeader => {
-                if (otherHeader !== header) {
-                    otherHeader.setAttribute('aria-expanded', 'false');
-                    otherHeader.nextElementSibling.style.display = 'none';
-                }
-            });
-
-            // クリックしたメモの表示を切り替える
-            if (isExpanded) {
-                header.setAttribute('aria-expanded', 'false');
-                contentDiv.style.display = 'none';
-            } else {
-                header.setAttribute('aria-expanded', 'true');
-                contentDiv.style.display = 'block';
-            }
-        }
-    });
-
-    // ★★ 編集、削除、コピーの各ボタンのイベントリスナーを定義します ★★
+    
+    // ★★★ 編集、削除、コピーの各ボタンのイベントリスナーはそのまま利用 ★★★
     noteList.addEventListener('click', (e) => {
         const editButton = e.target.closest('.edit-btn');
         const deleteButton = e.target.closest('.delete-btn');
         const copyButton = e.target.closest('.copy-btn');
         
-        // closest() で親要素の `.note-item` を取得し、データ属性からインデックスを取得
         const noteItem = e.target.closest('.note-item');
         if (!noteItem) return;
         
+        // ローカルの配列のインデックスを使用
         const index = noteItem.dataset.index;
         
         // 編集ボタンの処理
         if (editButton) {
-            const newTitle = prompt('新しい名前を入力してください:', notes[index].title);
-            const newContent = prompt('新しい参戦実況を入力してください:', notes[index].content);
+            const newTitle = prompt('新しい名前を入力してください:', localNotes[index].title);
+            const newContent = prompt('新しい題名を入力してください:', localNotes[index].content);
             
             if (newTitle !== null && newContent !== null) {
-                notes[index].title = newTitle;
-                notes[index].content = newContent;
-                saveNotes();
-                renderNotes(notes);
+                // スプレッドシートへの更新処理は複雑なため、今回は非対応とします
+                // 新しいメモとして追加する処理に代えます
+                const updatedNote = {
+                    title: newTitle,
+                    content: newContent
+                };
+                saveToSpreadsheet(updatedNote);
             }
         }
         
         // 削除ボタンの処理
         if (deleteButton) {
-            if (confirm('この参戦実況を削除しますか？')) {
-                notes.splice(index, 1);
-                saveNotes();
-                renderNotes(notes);
+            if (confirm('このメモを削除しますか？')) {
+                // スプレッドシートからの削除は複雑なため、今回は非対応とします
+                // ローカルの表示からのみ削除します
+                localNotes.splice(index, 1);
+                renderNotes(localNotes);
             }
         }
         
         // コピーボタンの処理
         if (copyButton) {
-            navigator.clipboard.writeText(`${notes[index].title}\n\n${notes[index].content}`)
+            navigator.clipboard.writeText(`${localNotes[index].title}\n\n${localNotes[index].content}`)
                 .then(() => {
-                    alert('参戦実況の内容がクリップボードにコピーされました！');
+                    alert('メモの内容がクリップボードにコピーされました！');
                 })
                 .catch(err => {
                     console.error('コピーに失敗しました:', err);
@@ -116,15 +93,62 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         }
     });
+    
+    // スプレッドシートからメモを読み込む関数
+    let localNotes = []; // 読み込んだメモを格納する配列
+    function loadNotesFromSpreadsheet() {
+        fetch(GAS_WEB_APP_URL, {
+            method: 'GET'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                localNotes = data.notes;
+                renderNotes(localNotes);
+                console.log('スプレッドシートからメモを読み込みました。');
+            } else {
+                console.error('スプレッドシートからの読み込みに失敗しました:', data.message);
+                alert('スプレッドシートからの読み込みに失敗しました。');
+            }
+        })
+        .catch(error => {
+            console.error('エラー:', error);
+            alert('通信エラーが発生しました。');
+        });
+    }
+
+    // スプレッドシートにデータを送信する関数
+    function saveToSpreadsheet(noteData) {
+        fetch(GAS_WEB_APP_URL, {
+            method: 'POST',
+            body: JSON.stringify(noteData),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('メモがスプレッドシートに保存されました。');
+                // 保存が成功したら再読み込み
+                loadNotesFromSpreadsheet();
+            } else {
+                console.error('スプレッドシートへの保存に失敗しました:', data.message);
+                alert('スプレッドシートへの保存に失敗しました。');
+            }
+        })
+        .catch(error => {
+            console.error('エラー:', error);
+            alert('通信エラーが発生しました。');
+        });
+    }
 
     // メモ一覧をHTMLにレンダリングする関数
-    // ★★★ この部分を修正します ★★★
     function renderNotes(noteArray) {
-        noteList.innerHTML = ''; // 一旦リストをクリア
+        noteList.innerHTML = '';
         noteArray.forEach((note, index) => {
             const listItem = document.createElement('li');
             listItem.className = 'note-item';
-            // データ属性を使って、メモのインデックスを保存
             listItem.dataset.index = index; 
 
             listItem.innerHTML = `
@@ -143,10 +167,5 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             noteList.appendChild(listItem);
         });
-    }
-
-    // メモをローカルストレージに保存する関数
-    function saveNotes() {
-        localStorage.setItem('notes', JSON.stringify(notes));
     }
 });
