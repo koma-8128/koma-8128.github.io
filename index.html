@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>参戦実況管理システム</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>参戦実況管理システム</h1>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="参戦実況を検索...">
+        </div>
+    </header>
+
+    <main>
+        <div class="add-note-container">
+            <h2>新しい参戦実況を追加</h2>
+            <form id="noteForm">
+                <input type="text" id="noteTitle" placeholder="名前" required>
+                <textarea id="noteContent" placeholder="実況内容" required></textarea>
+                <button type="submit">参戦実況を追加</button>
+            </form>
+        </div>
+
+        <div class="note-list-container">
+            <h2>参戦実況一覧</h2>
+            <ul id="noteList">
+                </ul>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 参戦実況管理システム</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
