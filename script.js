@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // コピーボタンの処理
         if (copyButton) {
-            navigator.clipboard.writeText(`{notes[index].content}`)
+            navigator.clipboard.writeText({notes[index].content})
                 .then(() => {
                     alert('メモの内容がクリップボードにコピーされました！');
                 })
@@ -150,4 +150,5 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('notes', JSON.stringify(notes));
     }
 });
+
 
