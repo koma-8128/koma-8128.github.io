@@ -37,14 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 検索ボックスの入力イベントを処理
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
-        const filteredNotes = notes.filter(note => 
-            note.title.toLowerCase().includes(searchTerm)
-        );
-        renderNotes(filteredNotes); // フィルタリングされたメモをレンダリング
+        // 検索キーワードを引数として渡す
+        renderNotes(notes, searchTerm); 
     });
 
     // メモの表示・非表示を切り替えるイベントリスナー
-    // ★★★ この部分を修正します ★★★
     noteList.addEventListener('click', (e) => {
         const header = e.target.closest('.note-header');
         if (header) {
@@ -70,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ★★ 編集、削除、コピーの各ボタンのイベントリスナーを定義します ★★
+    // 編集、削除、コピーの各ボタンのイベントリスナーを定義します
     noteList.addEventListener('click', (e) => {
         const editButton = e.target.closest('.edit-btn');
         const deleteButton = e.target.closest('.delete-btn');
@@ -80,7 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const noteItem = e.target.closest('.note-item');
         if (!noteItem) return;
         
-        const index = noteItem.dataset.index;
+        // 元の配列のインデックスを取得
+        const index = noteItem.dataset.originalIndex;
         
         // 編集ボタンの処理
         if (editButton) {
@@ -91,16 +89,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 notes[index].title = newTitle;
                 notes[index].content = newContent;
                 saveNotes();
-                renderNotes(notes);
+                renderNotes(notes, searchInput.value.toLowerCase()); // 修正後も検索結果を維持
             }
         }
         
         // 削除ボタンの処理
         if (deleteButton) {
-            if (confirm('このメモを削除しますか？')) {
+            if (confirm('この参戦実況を削除しますか？')) {
                 notes.splice(index, 1);
                 saveNotes();
-                renderNotes(notes);
+                renderNotes(notes, searchInput.value.toLowerCase()); // 修正後も検索結果を維持
             }
         }
         
@@ -108,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (copyButton) {
             navigator.clipboard.writeText(notes[index].content)
                 .then(() => {
-                    alert('メモの内容がクリップボードにコピーされました！');
+                    alert('メ参戦実況の内容がクリップボードにコピーされました！');
                 })
                 .catch(err => {
                     console.error('コピーに失敗しました:', err);
@@ -118,14 +116,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // メモ一覧をHTMLにレンダリングする関数
-    // ★★★ この部分を修正します ★★★
-    function renderNotes(noteArray) {
+    function renderNotes(noteArray, searchTerm = '') {
         noteList.innerHTML = ''; // 一旦リストをクリア
         noteArray.forEach((note, index) => {
+            // 検索語句が含まれていない場合はスキップ
+            if (searchTerm && !note.title.toLowerCase().includes(searchTerm)) {
+                return;
+            }
+
             const listItem = document.createElement('li');
             listItem.className = 'note-item';
-            // データ属性を使って、メモのインデックスを保存
-            listItem.dataset.index = index; 
+            // 元の配列のインデックスをデータ属性として保存
+            listItem.dataset.originalIndex = index; 
 
             listItem.innerHTML = `
                 <div class="note-header" aria-expanded="false">
@@ -150,6 +152,3 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('notes', JSON.stringify(notes));
     }
 });
-
-
-
