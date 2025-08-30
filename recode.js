@@ -35,30 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderNotes(filteredNotes); 
     });
 
-    // メモの表示・非表示を切り替えるイベントリスナーはそのまま
-    noteList.addEventListener('click', (e) => {
-        const header = e.target.closest('.note-header');
-        if (header) {
-            const contentDiv = header.nextElementSibling.nextElementSibling; // 次の要素をスキップして.note-contentを取得
-            const isExpanded = header.getAttribute('aria-expanded') === 'true';
-
-            noteList.querySelectorAll('.note-header[aria-expanded="true"]').forEach(otherHeader => {
-                if (otherHeader !== header) {
-                    otherHeader.setAttribute('aria-expanded', 'false');
-                    // 他のメモの内容を閉じる
-                    otherHeader.nextElementSibling.nextElementSibling.style.display = 'none'; 
-                }
-            });
-
-            if (isExpanded) {
-                header.setAttribute('aria-expanded', 'false');
-                contentDiv.style.display = 'none';
-            } else {
-                header.setAttribute('aria-expanded', 'true');
-                contentDiv.style.display = 'block';
-            }
-        }
-    });
+    // 展開機能のイベントリスナーを削除
 
     noteList.addEventListener('click', (e) => {
         const editButton = e.target.closest('.edit-btn');
@@ -108,20 +85,14 @@ document.addEventListener('DOMContentLoaded', () => {
             listItem.className = 'note-item';
             listItem.dataset.index = index; 
 
-            // ★ 修正点: ボタンの要素を.note-contentの外に配置します ★
+            // 展開機能をなくし、内容を常に表示
             listItem.innerHTML = `
-                <div class="note-header" aria-expanded="false">
-                    <span>${note.content.substring(0, 30)}...</span>
-                    <span class="arrow">▶</span>
-                </div>
                 <div class="note-actions">
                     <button class="edit-btn">編集</button>
                     <button class="delete-btn">削除</button>
                     <button class="copy-btn">コピー</button>
                 </div>
-                <div class="note-content">
-                    <p>${note.content}</p>
-                </div>
+                <p>${note.content}</p>
             `;
             noteList.appendChild(listItem);
         });
