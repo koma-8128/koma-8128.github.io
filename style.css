@@ -175,3 +175,29 @@ footer {
 .copy-btn:hover {
     background-color: #0b7dda;
 }
+/* ナビゲーションバーのスタイル */
+.header-nav {
+    display: flex;
+    justify-content: flex-start; /* 左寄せ */
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #4a5468;
+}
+
+.brand-link {
+    font-size: 1.5rem;
+    color: white;
+    text-decoration: none; /* 下線をなくす */
+    margin-right: 45px; /* 「レコード」との間にスペースを空ける */
+}
+
+.nav-link {
+    font-size: 1.5rem;
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #ddd; /* ホバー時の色 */
+}
