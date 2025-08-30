@@ -27,21 +27,21 @@ header {
 }
 
 .brand-link {
-    font-size: 1.5rem; /* あるいは nav-link と同じサイズに統一 */
+    font-size: 1.5rem;
     color: white;
-    text-decoration: none; /* 下線をなくす */
-    margin-right: 20px; /* 「レコード」との間にスペースを空ける */
+    text-decoration: none;
+    margin-right: 20px;
 }
 
 .nav-link {
-    font-size: 1.5rem; /* あるいは brand-link と同じサイズに統一 */
+    font-size: 1.5rem;
     color: white;
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 .nav-link:hover {
-    color: #ddd; /* ホバー時の色 */
+    color: #ddd;
 }
 
 .search-container {
@@ -86,7 +86,7 @@ h2 {
     margin-bottom: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    box-sizing: border-box; /* パディングとボーダーを幅に含める */
+    box-sizing: border-box;
 }
 
 #noteForm button {
@@ -128,29 +128,11 @@ h2 {
     background-color: #f1f1f1;
 }
 
-.note-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.note-header .arrow {
-    font-size: 1.2rem;
-    transition: transform 0.3s ease;
-}
-
-.note-header[aria-expanded="true"] .arrow {
-    transform: rotate(90deg);
-}
-
+/* 展開機能をなくしたので、関連するCSSを削除 */
 .note-content {
-    display: none;
+    white-space: pre-wrap;
+    /* display: none; は削除 */
     margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #ddd;
-    white-space: pre-wrap; /* 改行を保持 */
 }
 
 /* フッター */
@@ -165,8 +147,8 @@ footer {
 /* メモ内容の操作ボタンのスタイル */
 .note-actions {
     display: flex;
-    justify-content: flex-end; /* ボタンを右寄せ */
-    gap: 10px; /* ボタン間のスペース */
+    justify-content: flex-end;
+    gap: 10px;
     margin-bottom: 10px;
 }
 
@@ -181,7 +163,7 @@ footer {
 }
 
 .edit-btn {
-    background-color: #4CAF50; /* 緑色 */
+    background-color: #4CAF50;
 }
 
 .edit-btn:hover {
@@ -189,7 +171,7 @@ footer {
 }
 
 .delete-btn {
-    background-color: #f44336; /* 赤色 */
+    background-color: #f44336;
 }
 
 .delete-btn:hover {
@@ -197,7 +179,7 @@ footer {
 }
 
 .copy-btn {
-    background-color: #2196F3; /* 青色 */
+    background-color: #2196F3;
 }
 
 .copy-btn:hover {
